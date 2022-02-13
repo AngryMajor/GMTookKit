@@ -1,6 +1,9 @@
 import discord
 
-TOKEN = 
+TOKEN = None
+
+with open('Bot_token.txt') as f: 
+	TOKEN = f.readlines()[0]
 
 client = discord.Client()
 
