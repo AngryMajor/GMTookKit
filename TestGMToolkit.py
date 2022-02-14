@@ -51,8 +51,6 @@ class TestInitRunner(unittest.TestCase):
 		self.target.process(["add","item","2"])
 		self.assertEqual(self.target.process(["show"]),"[('item', 2), ('item', 1)]")
 	
-
-	
 	def test_remove_item(self):
 		self.init_order_list.append(("item",1))
 		self.init_order_list.append(("item2",2))
@@ -156,8 +154,73 @@ class TestInitRunner(unittest.TestCase):
 		self.target.process(["remove","item"])
 		self.assertEqual(self.target.process(["next"]),"No Combatants Entered")
 
+class TestDMGTracker(unittest.TestCase):
+	
+	def setUp(self):
+		self.target = gmt.DMGTracker()
+	
+	def test_create_get_pool(self):	
+		self.target.process(["add","item","1"])
+		self.target.process(["add","item2","2"])
 
+		self.assertEquals(self.target.process(["show","item"]),"1")
+		self.assertEquals(self.target.process(["show","item2"]),"2")
+
+	def test_add_amounts(self):	
+		self.target.process(["add","item","1"])
+		self.assertEquals(self.target.process(["show","item"]),"1")
+				
+		self.target.process(["add","item","2"])
+		self.assertEquals(self.target.process(["show","item"]),"3")
 		
+	def test_subtract(self):
+		self.target.process(["add","item","4"])
+		self.assertEquals(self.target.process(["show","item"]),"4")
+
+		self.target.process(["subtract","item","1"])
+		self.assertEquals(self.target.process(["show","item"]),"3")
+		
+		self.target.process(["subtract","item","2"])
+		self.assertEquals(self.target.process(["show","item"]),"1")
+		
+	def test_subtract_untill_removal(self):
+		self.target.process(["add","item","4"])
+		self.target.process(["add","item2","4"])
+
+		self.assertEquals(self.target.process(["show","item"]),"4")
+		self.assertEquals(self.target.process(["show","item2"]),"4")
+
+		self.target.process(["subtract","item","4"])
+		self.assertEquals(self.target.process(["show","item"]),"**item** not found")
+		
+		self.target.process(["subtract","item2","5"])
+		self.assertEquals(self.target.process(["show","item2"]),"**item** not found")
+		
+	def test_remove(self):
+		self.target.process(["add","item","4"])
+		self.assertEquals(self.target.process(["show","item"]),"4")
+		
+		self.target.process(["remove","item"])
+		self.assertEquals(self.target.process(["show","item"]),"**item** not found")
+		
+	def test_show_all(self):
+		self.assertEquals(self.target.process(["show"]),"No Combatants Entered")
+	
+		self.target.process(["add","item","1"])
+		self.target.process(["add","item2","2"])
+		
+		self.assertEquals(self.target.process(["show"]),"**item**:1\n**item2**:2")
+
+	def test_end(self):
+		self.target.process(["add","item","1"])
+		self.target.process(["add","item2","2"])
+		self.assertEquals(self.target.process(["show"]),"**item**:1\n**item2**:2")
+
+		self.target.process(["end"])
+
+		self.assertEquals(self.target.process(["show"]),"No Combatants Entered")
+		
+
 	
 if __name__ == "__main__":
 	unittest.main()
